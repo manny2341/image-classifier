@@ -1,0 +1,8 @@
+uploads/
+__pycache__/
+*.pyc
+.env
+*.h5
+*.keras
+test_img.jpg
+test_dog.jpg

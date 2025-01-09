@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Image Classifier — AI Vision</title>
+  <link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>AI Image Classifier</h1>
+    <p class="subtitle">Upload any photo and AI will tell you what's in it — powered by EfficientNetV2 trained on 1,000 categories.</p>
+  </header>
+
+  {% if error %}
+    <div class="banner error">{{ error }}</div>
+  {% endif %}
+
+  <!-- Upload Box -->
+  <div class="upload-box" id="uploadBox">
+    <form action="/predict" method="POST" enctype="multipart/form-data" id="uploadForm">
+      <div class="upload-icon">🖼️</div>
+      <p class="upload-label">Choose a photo from your computer</p>
+      <input type="file" name="image" accept="image/*" required class="file-input" id="fileInput"/>
+      <label for="fileInput" class="file-btn">Browse Image</label>
+      <p class="file-name" id="fileName">No file chosen</p>
+      <button type="submit" class="btn" id="submitBtn">Classify Image</button>
+    </form>
+  </div>
+
+  <!-- Results -->
+  {% if results %}
+  <div class="results-section">
+
+    <!-- Uploaded Image -->
+    <div class="image-preview-box">
+      <img src="{{ image_url }}" alt="Uploaded image" class="preview-img"/>
+    </div>
+
+    <!-- Top Prediction Banner -->
+    <div class="banner success">
+      <p class="result-label">Top Prediction</p>
+      <div class="price-tag">{{ results[0].label }}</div>
+      <p class="result-sub">Confidence: <strong>{{ results[0].confidence }}%</strong></p>
+    </div>
+
+    <!-- All Top 5 -->
+    <div class="section-title">Top 5 Predictions</div>
+    <div class="predictions-list">
+      {% for item in results %}
+      {% set i = loop.index0 %}
+      <div class="pred-row {% if i == 0 %}top-pred{% endif %}">
+        <span class="pred-rank">#{{ i + 1 }}</span>
+        <div class="pred-bar-wrap">
+          <div class="pred-label-row">
+            <span class="pred-label">{{ item.label }}</span>
+            <span class="pred-pct">{{ item.confidence }}%</span>
+          </div>
+          <div class="pred-bar-bg">
+            <div class="pred-bar-fill" style="width: {{ item.confidence }}%"></div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <a href="/" class="back-link">← Try another image</a>
+  </div>
+  {% endif %}
+
+  <!-- Info Box (only show when no results) -->
+  {% if not results %}
+  <div class="info-box">
+    <h3>What this app does:</h3>
+    <ul>
+      <li>Upload <strong>any photo</strong> — animals, objects, food, cars, plants...</li>
+      <li>AI analyses the image using a <strong>deep learning model</strong></li>
+      <li>Get back the <strong>top 5 predictions</strong> with confidence scores</li>
+      <li>Trained on <strong>1,000 different categories</strong> from ImageNet</li>
+    </ul>
+    <h3>Try these examples:</h3>
+    <ul>
+      <li>A photo of your pet (dog, cat...)</li>
+      <li>A photo of food (pizza, burger, rice...)</li>
+      <li>A car, a plant, a bird, a fruit</li>
+      <li>Almost anything!</li>
+    </ul>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const fileName  = document.getElementById('fileName');
+  const submitBtn = document.getElementById('submitBtn');
+
+  fileInput.addEventListener('change', function () {
+    fileName.textContent = this.files[0]?.name || 'No file chosen';
+  });
+
+  document.getElementById('uploadForm').addEventListener('submit', function () {
+    submitBtn.textContent = 'Analysing...';
+    submitBtn.disabled = true;
+  });
+</script>
+</body>
+</html>
